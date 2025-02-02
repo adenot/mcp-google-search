@@ -1,4 +1,5 @@
 # mcp-google-server A MCP Server for Google Custom Search
+[![smithery badge](https://smithery.ai/badge/@adenot/mcp-google-search)](https://smithery.ai/server/@adenot/mcp-google-search)
 
 A Model Context Protocol server that provides web search capabilities using Google Custom Search API.
 
@@ -48,6 +49,14 @@ npm run watch
 ```
 
 ## Installation
+
+### Installing via Smithery
+
+To install Google Custom Search Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@adenot/mcp-google-search):
+
+```bash
+npx -y @smithery/cli install @adenot/mcp-google-search --client claude
+```
 
 To use with Claude Desktop, add the server config with your Google API credentials:
 
