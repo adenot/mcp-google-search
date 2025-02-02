@@ -3,6 +3,8 @@
 
 A Model Context Protocol server that provides web search capabilities using Google Custom Search API.
 
+<a href="https://glama.ai/mcp/servers/05vc0lafp9"><img width="380" height="200" src="https://glama.ai/mcp/servers/05vc0lafp9/badge" alt="Google Server MCP server" /></a>
+
 ## Setup
 
 ### Getting Google API Key and Search Engine ID
