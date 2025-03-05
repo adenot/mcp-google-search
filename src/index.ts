@@ -229,7 +229,7 @@ class SearchServer {
   async run() {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
-    console.error('Search MCP server running on stdio');
+    console.log('Search MCP server running on stdio');
   }
 }
 
