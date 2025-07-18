@@ -26,10 +26,10 @@ WORKDIR /app
 
 # Copy the build files from the builder stage
 COPY --from=builder /app/build ./build
-COPY package.json ./
+COPY package.json package-lock.json ./
 
 # Install only production dependencies
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --ignore-scripts
 
 # Expose the port on which the server will run (if required)
 # EXPOSE 8080
