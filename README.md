@@ -24,7 +24,7 @@ A Model Context Protocol server that provides web search capabilities using Goog
    - (Optional) Restrict the API key to only Custom Search API
 
 4. Create Custom Search Engine:
-   - Go to [Programmable Search Engine](https://programmablesearchengine.google.com/create/new)
+   - Go to [Programmable Search Engine](https://programmablesearchengine.google.com/controlpanel/all)
    - Enter the sites you want to search (use www.google.com for general web search)
    - Click "Create"
    - On the next page, click "Customize"
