@@ -10,6 +10,8 @@ import {
 import axios, { AxiosProxyConfig } from 'axios';
 import * as cheerio from 'cheerio';
 import { URL } from 'url';
+import dns from 'dns';
+import { LookupAddress } from 'net';
 
 const API_KEY = process.env.GOOGLE_API_KEY;
 const SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
@@ -39,6 +41,59 @@ function createProxyConfig(): AxiosProxyConfig | false {
   } catch (error) {
     console.warn(`Invalid proxy URL: ${proxyUrl}`);
     return false;
+  }
+}
+
+function isPrivateIp(ip: string): boolean {
+  const ipv4Match = ip.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (ipv4Match) {
+    const [,, a, b] = ipv4Match.map(Number);
+    if (a === 10) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 127) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 0) return true;
+    if (a >= 224) return true;
+    return false;
+  }
+  if (ip.includes(':')) {
+    const normalized = ip.toLowerCase();
+    if (normalized === '::1' || normalized === '0000:0000:0000:0000:0000:0000:0000:0001') return true;
+    if (normalized.startsWith('fe80:')) return true;
+    if (normalized.startsWith('fc00:') || normalized.startsWith('fd00:')) return true;
+    if (normalized === '::') return true;
+    if (normalized.startsWith('::ffff:')) {
+      return isPrivateIp(normalized.substring(7));
+    }
+    return false;
+  }
+  return false;
+}
+
+async function validateUrl(urlString: string): Promise<void> {
+  let parsedUrl: URL;
+  try {
+    parsedUrl = new URL(urlString);
+  } catch {
+    throw new Error('Invalid URL');
+  }
+
+  if (!['http:', 'https:'].includes(parsedUrl.protocol)) {
+    throw new Error('Only http and https protocols are allowed');
+  }
+
+  const hostname = parsedUrl.hostname;
+  if (!hostname) {
+    throw new Error('Invalid URL: missing hostname');
+  }
+
+  const addresses = await dns.promises.lookup(hostname, { all: true }) as LookupAddress[];
+
+  for (const addr of addresses) {
+    if (isPrivateIp(addr.address)) {
+      throw new Error(`URL resolves to a private or reserved IP (${addr.address})`);
+    }
   }
 }
 
@@ -214,9 +269,12 @@ class SearchServer {
         const { url } = request.params.arguments;
 
         try {
+          await validateUrl(url);
+
           const proxyConfig = createProxyConfig();
           const response = await axios.get(url, {
             proxy: proxyConfig,
+            maxRedirects: 0,
           });
           const $ = cheerio.load(response.data);
 
